@@ -1,0 +1,487 @@
+You are the Playwright MCP Assistant.
+Create a dashboard for “AI Testing Companion" tool.
+
+🎯 High-Level Requirements
+	• Build a single-page dashboard UI (HTML + CSS + JavaScript if required).
+	• Layout must have:
+		○ Left Pane (Sidebar)
+			§ Fixed vertical panel
+			§ Title: “PR Analysis"
+			§ Links with small icons - highlight the active link
+            🚀 Generate Tests 
+            🧠 Bug Intelligence
+            🔍 Analyze PR
+            ⚙️ Settings (UI should include the following to configure - Jira API, Bitbucket API, Test Rail API, Test Rail Suite ID, context file (.txt only))
+		
+        ○ Right Pane (Main Content Area)
+
+        GENERATE TESTS - 
+        1. Input for Jira story id
+			- Support multiple jira ticket ids from the same story separated by commas
+			- This is to cover if there are any integrations between different parts of the story
+			- Aggregate test cases
+			- Check for duplicates
+        2. Input for Test suite ID in test rail
+		3. Input for Folder name (create new if the folder does not exist)
+		4. Read the context of the application/story/integrations from a prompt file saved. Refer the context changes before creating test cases
+		   File format - .txt
+		   Context file can be uploaded in settings page which allows only txt formats. This needs to saved for future references 
+		   This file specifies the overview of the application. File size can limit upto 5 MB
+		5. Generate tests button
+		6. Placeholder area to list the test cases in BDD format (Given When then)
+		   User should be allowed to select few or all test cases listed here and then import them to test rail
+		   User must be allowed to make corrections here before uploading to test rail
+		   Support inline editing. All updates must be included in the uploads
+		   No need to provide options to add new cases or provide undo and redo functionality
+
+		7. Generate detailed functional test cases to test the functionality
+		8. Refer the acceptance criteria and include test cases accordingly
+		9. Output Format:
+			Create the test cases directly in BDD format. For each case, include:
+			⦁	Title (concise and descriptive)
+			⦁	Preconditions
+			⦁	Steps (Given, When, Then)
+			⦁	Expected Result
+			⦁	Priority (Set as High or Medium)
+			⦁	Test Case for (Set as Functionality Test)
+            ⦁	Test Case Category (Set as Functionality)
+			⦁	Automated ? (Set as Not Verified)
+			⦁	Primary Automation Type (Set as None)
+			⦁	Test Case Health (Set as Good)
+			⦁	Component (select same component as defined in JIRA story)
+			⦁	Source (Set as AI Generated)
+			⦁	References (Set as relevant Jira ticket id)
+		10. Import to Test rail button. All selected test cases must be imported to the specified suite id and section/folder with all fields filled appropriately
+		    Clear the test cases that were uploaded so that it does not add duplicates. 
+			Show progress tracking while upload is in progress. Progress bar showing X/Y test cases uploaded
+			Rollback/Stop upload if any failure. Just stop and leave partial upload with error message
+			Option to Cancel upload
+
+       BUG INTELLIGENCE - 
+		1. Input few lines about bug description.
+		2. Read the context of the application/story/integrations from a prompt file saved. Refer the context changes before creating bug steps
+		3. Output format:
+		Each Bug Report must follow this structure and well formatted:
+			- Bug Title: An impact-first unique summary under 12 words. Distinctive and precise.  
+			- Test Environment Details: credentials and URLs 
+			- Bug Description: A specific 2–3 line summary explaining the problem and why it matters.  
+			- Detailed Steps to Reproduce:   
+			- Actual Result:
+			- Expected Result:
+			- Impact to User: Explain the effect on end-user experience.  
+			- Bug Re-Testing Ideas:
+		User must be allowed to make changes on the content generated.
+		4. Copy link and user must be allowed to paste them in JIRA
+
+        ANALYZE PR - 
+			§ A frame/section containing
+				□ Input field: Jira ID, PR link as optional
+				□ Button: Fetch PRs, Analyze PR
+				□ Placeholder area to show results returned from Playwright scripts
+				frontend logic that calls a Playwright MCP back-end to analyze Bitbucket PRs. 
+				“What Changed?” 
+				In addition to UI code, implement (in the generated pseudo-code or clear TODO comments) a complete categorization engine that assigns one of five labels to each PR:
+					• 😂 Relaxed PR — Routine changes, low impact
+					• 😡 Angry PR — Many files changed, risky hotspots
+					• 🤯 Overloaded PR — Touches shared/core components (high blast radius)
+					• 🙃 Sarcastic PR — Titled as “quick fix” / “minor” but actually large / complex
+					• 😴 Sleepy PR — Style/formatting/lint-only edits
+            
+				PR Fetching Logic
+					Input: JIRA ID (+ optional PR/commit URL)
+					↓
+					Fetch linked PRs from JIRA
+					↓
+					If PRs found → analyze all
+					↓
+					If no PRs found → allow manual entry
+					↓
+					If commit URL → run limited analysis
+					↓
+					Generate combined impact & regression recommendation
+
+			“What Can Break?” - Impact Analysis:
+			1. Provide root cause hints
+			2. A human-readable impact list with a risk tag against each item
+			3. AI suggesstions for testing actions by listing modules, pages, components.
+
+            Get test cases from Test Rail - What Should I Test?
+            1. Each category of PR must list the impacted test cases from test rail. 
+			   Identify an appropritate logic to search for matching test cases. 
+			   Matching algorithm - keywords in title, JIRA components
+			   Identify cases only from the test suite ID that is configured
+			   Test Rail folder hierarchy as it appears in the test suite - Eg. BGS Regression > Admin Dashboard > Reports
+            2. Identify and pull the regression test cases from the configured test suite ID
+            3. Each test case must have a hyperlink to open the test case from test rail. 
+            4. The folder path must be displayed in smaller font above the test case and have hyperlinks respectively to navigate to that folder in test rail
+
+			“Should I Worry?” → Risk score
+			Include the count of test cases to be executed for the JIRA ticket and estimated time in hours for effecting planning
+
+🧩 Functional Requirements
+	• When the user enters a Jira ID, clicking “Analyze PR” should:
+		1. Trigger the Playwright MCP script
+		2. Script will fetch PR information from Bitbucket
+		3. Analyze PR category (Relaxed / Angry / Sarcastic / Overloaded / Sleepy)
+		4. Display categorized results in the right-side results area
+		5. Pull relevant test cases from test rail
+		6. Display impact Analysis and Risk score
+
+📋 ADDITIONAL REQUIREMENTS TO ADD:
+
+
+1. BACKEND ARCHITECTURE:
+   - Create a Node.js/Express backend server (same as in CTRL-QA)
+   - Server should run on port 3002 (to avoid conflicts)
+   - Use the following API endpoints:
+     * POST /api/generate-testcases (for test generation)
+     * POST /api/analyze-pr (for PR analysis)
+     * POST /api/generate-bug-report (for bug intelligence)
+     * POST /api/upload-to-testrail (for TestRail upload)
+     * GET /api/config (to fetch current settings)
+     * POST /api/config (to save settings)
+
+	- Node.js + Express
+	- Acts as a thin orchestration layer
+	- No heavy business logic
+	- All intelligence driven by AI prompts
+
+2. SETTINGS STORAGE:
+   - Store API credentials in backend/config.js
+   - Provide config.example.js template
+   - Never expose credentials in frontend
+   - Settings persist across sessions until changed
+   
+   Configuration:
+	- config.json or config.js
+	- Stores:
+		- JIRA API key
+		- TestRail API key
+		- Bitbucket API key
+		- Default Test Suite ID
+	- Editable from Settings UI
+	- Persisted locally
+
+	API Settings:
+	All API KEYS for real time integration are provided in the config.js file
+	Path - AI Testing Companion\config.js
+	Test API credentials in Settings. Show connection status indicators (✓ Connected, ✗ Failed)?
+
+3. CONTEXT FILE:
+   - Location: AI Testing Companion/context/app-context.txt
+   - User can upload/edit via Settings panel
+   - Use for all AI-generated content (tests, bug reports)
+
+4. TESTRAIL FIELD MAPPING:
+   - Create mapping configuration for custom fields and select suitable value from the dropdown
+   - Read the custom test rail fields specific to the test suite ID from Test rail API
+   - Handle section creation if doesn't exist
+   - Check for duplicates before upload (by References match (Jira ID))
+   - Show warning in UI for duplicates and let user decide
+
+5. TEST CASE MATCHING LOGIC:
+   - Search TestRail by: Modul name, Component name, JIRA ticket reference, keywords from PR files
+   - Tag "Regression" test cases explicitly
+   - Display folder path as breadcrumb above each test case
+
+6. RISK SCORE FORMULA:
+   - Calculate based on: 
+     * Files changed (>10 = high)
+     * Lines changed (>500 = high)
+     * Core components touched (high)
+     * Test case count (>50 = high)
+   - Display as: Low (Green) / Medium (Yellow) / High (Red)
+   
+   Risk Score =  Files Changed × Weight
+	+ Shared Components Touched × 2
+	+ Lines of Code Changed
+	+ API Schema Change (Yes/No)
+	+ Historical Bugs Weight
+
+	Mapped to:
+		0–30 → 😂 Relaxed
+		31–50 → 😴 Sleepy
+		51–70 → 🙃 Sarcastic
+		71–85 → 😡 Angry
+		86–100 → 🤯 Overloaded
+
+7. TIME ESTIMATION:
+   - Default: 5 minutes per manual test based on compexity
+   - Display total estimated hours
+
+8. ERROR HANDLING:
+   - Show toast notifications for errors/success
+   - Display loading spinners during API calls
+   - Graceful degradation if APIs fail
+   - Detailed error logs in console
+   - Show loading spinner during analysis
+   - Friendly error messages:
+	- “Unable to fetch PRs”
+	- “Invalid JIRA ID”
+	- “TestRail authentication failed”
+	- Success toast after analysis completes
+
+9. DEPENDENCIES:
+   - Express, axios, cors, multer (same as CTRL-QA)
+   - No frontend frameworks - pure vanilla JS
+   - Create package.json with start scripts
+   - Read the API settings as available in file -- CTRL-QA\dashboard\config.js
+     Create a config file in this folder
+
+10. FILE STRUCTURE:
+    AI Testing Companion/
+    ├── backend/
+    │   ├── server.js
+    │   ├── config.js
+    │   ├── config.example.js
+    │   └── services/
+    │       ├── jira-service.js
+    │       ├── bitbucket-service.js
+    │       ├── testrail-service.js
+    │       └── ai-generator.js
+    ├── frontend/
+    │   ├── index.html
+    │   ├── styles.css
+    │   └── dashboard.js
+    ├── context/
+    │   └── app-context.txt
+    ├── package.json
+    ├── start.bat
+    ├── start.ps1
+    └── README.md
+
+11. MULTI-STORY PROCESSING:
+   - When multiple JIRA IDs entered (comma-separated):
+     * Fetch all stories in parallel
+     * Merge acceptance criteria from all stories
+     * Generate unified test case list
+     * Auto-deduplicate by test case title (case-insensitive match)
+     * Show story count at top (e.g., "Generated 25 test cases from 3 stories")
+     * Each test case References field contains all relevant JIRA IDs
+
+12. TESTRAIL CUSTOM FIELDS:
+   - API Call: GET /api/v2/get_case_fields
+   - For each custom field:
+     * If type = dropdown/multi-select: Fetch options from API
+     * Dynamically create select elements in UI
+     * Pre-select default values as specified in prompt
+   - Field Types to handle:
+     * String: text input
+     * Integer: number input
+     * Dropdown: select element with API-fetched options
+     * Multi-select: multiple select
+     * Checkbox: checkbox input
+     * Date: date picker
+
+13. PR FETCHING LOGIC:
+   - If JIRA ticket has multiple PRs:
+     * Display all PRs in a list with radio buttons
+     * User selects which PR to analyze
+     * Default: select the most recent PR
+   - If no PR found in JIRA:
+     * Show message: "No PR found in JIRA ticket"
+     * Enable manual PR URL input field
+     * Allow direct PR URL analysis
+   - Support both PR URLs and commit URLs from Bitbucket
+
+14. COMPONENT EXTRACTION:
+   - Auto-extract components from PR file paths:
+     * Pattern matching: Look for common folders (e.g., admin/, reports/, api/)
+     * Map to TestRail components using fuzzy match
+   - Configurable in Settings:
+     * Component Mapping JSON: {"src/admin": "Admin Dashboard", "src/reports": "Reports"}
+   - Fallback: Use file path as component name
+
+15. REGRESSION TEST IDENTIFICATION:
+   - TestRail Filter Logic:
+     * Check if folder path contains "Regression" (case-insensitive)
+     * OR check custom field "Test Type" = "Regression"
+     * Configurable in Settings (folder-based or field-based)
+
+16. DUPLICATE HANDLING:
+   - Before upload to TestRail:
+     * Search existing test cases in target section by References field (JIRA ID match)
+     * If duplicate found: Show warning modal with list of duplicates
+     * User options: Skip duplicates, Update existing, Upload all as new
+   - Default behavior: Skip duplicates
+
+17. ROLLBACK STRATEGY:
+   - On upload failure:
+     * Stop immediately, do not continue uploading
+     * Display error message with failed test case title
+     * Show partial upload summary: "Uploaded 5 of 15 test cases before error"
+     * Do NOT delete already-uploaded test cases (no rollback)
+     * User can retry failed cases manually
+
+18. PROGRESS TRACKING:
+   - Upload Progress UI:
+     * Progress bar: "Uploading... 7/15 test cases"
+     * Detailed log below with checkmarks/X marks per test case
+     * Success: ✓ Test case "User login" uploaded (ID: TC-1234)
+     * Failure: ✗ Test case "Admin access" failed (Error: Invalid field)
+
+19. CONTEXT FILE TEMPLATE:
+   Create default app-context.txt with sections:
+   ```
+   APPLICATION OVERVIEW:
+   [Describe the application being tested]
+
+   KEY MODULES:
+   - Module 1: Description
+   - Module 2: Description
+
+   INTEGRATIONS:
+   - System A: How it integrates
+   - System B: How it integrates
+
+   COMMON WORKFLOWS:
+   1. Workflow description
+   2. Workflow description
+
+   KNOWN CONSTRAINTS:
+   - Constraint 1
+   - Constraint 2
+   ```
+
+20. BUG REPORT JIRA FORMAT:
+   - Output format: JIRA Markup
+   - Use JIRA syntax:
+     * Bold: *text*
+     * Headers: h3. Header
+     * Bullets: * item
+     * Code: {code}text{code}
+   - Copy button: Use clipboard API to preserve formatting
+   - Include markdown toggle for platforms that support markdown
+
+21. TEST CASE EDITING:
+   - UI Pattern: Inline editing
+   - Each test case rendered in editable card
+   - Click "Edit" button to enable contenteditable on all fields
+   - "Save" button to persist changes (save to session storage)
+   - "Add New" button to manually add test cases
+   - Changes saved temporarily until upload
+
+22. TIME ESTIMATION RULES:
+   - Complexity detection:
+     * Simple: <= 5 steps = 5 minutes
+     * Medium: 6-10 steps = 10 minutes
+     * Complex: > 10 steps = 15 minutes
+   - Configurable in Settings: Override default times
+   - Display total: "Estimated testing time: 3.5 hours (42 test cases)"
+
+📐 UI Requirements
+	• Clean, professional, minimal dashboard look
+	• Use HTML + CSS only (no external libraries unless required)
+	• Responsive layout
+	• Sidebar width: ~250px
+	• Right panel should use the remaining width
+	• Use subtle colors, box shadows, and padding
+
+🛠 Structural Requirements
+Provide:
+	1. index.html – main dashboard layout
+	2. styles.css – styling for sidebar + main panel
+	3. dashboard.js – logic for triggering the MCP call
+    4. Add clear “TODO” markers where Playwright MCP call must be plugged in
+📄 
+🔗 Additional Instructions
+	1. Do not use any hard-coded URLs.
+    2. All elements must have IDs so Playwright MCP can reference them
+	3. Keep placeholders for API integration.
+    4. Playwright must provide all necessary scripts so that no manual coding is required
+    	
+Expected Output
+Return all code files (HTML, CSS, JS) with clean formatting. 
+Create all required files inside "AI Testing Companion" folder only. No references/depencies outside the folder
+
+
+
+Logic to fetch the relevant test case 
+-------------------------------------
+
+You are a Principal QA Architect.
+
+Your task is to select ONLY the most critical regression test cases impacted by a Pull Request.
+
+PR Context:
+- PR type is already classified (Relaxed, Sleepy, Sarcastic, Overloaded, Angry)
+- PR size (files changed, LOC) is provided
+- PR title and description contain specific UI elements and behaviors
+
+STRICT RULES:
+1. PR type STRICTLY limits the number of test cases:
+   - Relaxed PR (≤2 files): maximum 10 test cases
+   - Sleepy PR (3-5 files): maximum 15
+   - Sarcastic PR (6-10 files): maximum 20
+   - Overloaded PR (11-20 files): 20–40
+   - Angry PR (>20 files): 40-60
+
+2. Do NOT include test cases just because they are in a Regression folder.
+
+3. A test case MUST directly relate to the changed files by functionality.
+
+4. Section or folder match alone is NOT sufficient - section path must be at least 2 levels deep:
+   - ❌ Invalid: "Regression > ApplicantWeb" (only 1 level deep)
+   - ✅ Valid: "Regression > ApplicantWeb > Webform > Questionnaire" (3+ levels deep)
+
+5. For PRs with 2 or fewer files changed:
+   - Include only direct functional tests
+   - Exclude end-to-end and cross-module tests
+
+6. PR Title/Description Context (NEW):
+   - Extract UI elements mentioned (button, dropdown, form, field, etc.)
+   - Extract behaviors mentioned (disabled, enabled, validation, always available, etc.)
+   - Tests matching BOTH element AND behavior get highest priority
+   - Example: PR title "submit button always available" → prioritize tests about submit button state/validation
+
+7. Bug Fix Priority (NEW):
+   - If PR title starts with "fix(" or contains "bug"/"bugfix":
+     * Prioritize negative scenario tests (validation, error handling, edge cases)
+     * Prioritize regression tests for the same component
+     * Tests with keywords: "should not", "prevent", "disable", "block", "reject", "invalid"
+
+8. File Type Specificity (NEW):
+   - HTML-only changes → UI rendering/display tests get priority
+   - TS/JS/Java-only changes → Logic and behavior tests get priority  
+   - Both UI + Logic files → Integration tests covering UI + logic get priority
+
+9. Score relevance with the following weights (0-100 scale):
+   - Feature/module exact match → +40 points
+   - File name match → +35 points
+   - Component match (at least 2 levels deep in section path) → +25-30 points
+   - PR context match (UI element + behavior from title) → +20-40 points
+   - Same API or screen → +20 points
+   - Keyword match → +15 points
+   - Bug fix context (negative scenarios) → +25-30 points
+   - File type specificity → +15-30 points
+   - Critical/Smoke test with shared component impact → +50 points
+   - Generic test (only top-level module, no specific features) → -20 points
+
+10. Discard any test case with relevance score below 60.
+    Exception: For PRs with ≤2 files, if fewer than 3 tests score above 60,
+    lower threshold to 45 but include warning in output.
+
+11. Return ONLY the top N tests allowed for the PR type.
+
+Output format:
+{
+  "pr_type": "",
+  "files_changed": [],
+  "pr_context": {
+    "ui_elements": [],
+    "behaviors": [],
+    "is_bug_fix": false
+  },
+  "recommended_tests": [
+    {
+      "test_case_id": "",
+      "title": "",
+      "section_path": "",
+      "section_depth": 0,
+      "relevance_score": 0,
+      "reason": ""
+    }
+  ],
+  "excluded_reason_summary": "",
+  "threshold_used": 60
+}

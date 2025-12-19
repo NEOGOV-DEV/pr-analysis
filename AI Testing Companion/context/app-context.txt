@@ -1,0 +1,125 @@
+APPLICATION OVERVIEW:
+This is a comprehensive enterprise application "Vetted" for managing background investigation process during recruitment process. 
+The system handles Applicant invitations, Assigning investigators, Maintaining applicant documents, 
+sending correspondences for referral contacts, PHS data validation and flagging, messaging, 
+approvals worklfow to move into specific investigation status, admin settings
+
+
+KEY MODULES:
+- Admin Dashboard: Manage Invitations, Manage investigations, Assign/Reassign Investigators, Approvals, Generate Reports
+- Applicant Management: Applicant details, Investigation status updates, PHS/Investigation due date settings, Lock/Unlock PHS, Maintains checklists,
+  Validates all PHS data that were submitted by Applicant, Reviews documents, adds custom documents and generate final reports, Sends correspondence 
+  to Applicant's reference contacts either through - Email, Letter, Fax or records from Phone conversations, Sends message to applicants and adds Notes
+- Admin Settings: Create PHS templates, maintains a library of correspondence templates, questionnaire templates, waivers, message templates, 
+  investigative summary templates.
+- PHS templates - This includes 2 different forms - Default PHS with 25 modules, CA POST PHS with 10 modules. 
+  The admin user is allowed to edit the predefined questions or add custom questions on each module.
+- Correspondences: Agency user sends correspondences to - PHS identified reference contacts, Agency Contacts, Nationwide contacts or
+  any additional secondary contacts added to the applicant's profile. Email responses are saved as web forms
+- Approval Workflow: Automated workflows for approvals, notifications, and status transitions. Add dynamic approvers or reactivate previously closed 
+  approval workflow
+- Generate Reports - Agency user can print all PHS modules in a PDF file, Generate a Final report which can include PHS, correspondence, Checklists, investigative
+  Summary, Document attachments in a PDF file, Generate Summary reports
+- Looker Reports: Applicant reports, PHS invitations, PHS submissions, Investigators workload
+- Authentication: role-based access control - Primary Roles - Admin, Investigators, Reviewer. Custom Roles can be created for these primary roles
+- Applicant Login: When applicant receives invitation to the Background system, then a series of PHS forms are expected to be filled with a configured
+  due date. Applicant signs digitally and submits the PHS for the investigation process. When applicant is invited for multiple applications, then
+  one submitted application can be reused to fill the other applications as well by using 'Apply previous PHS' option. Applicants can send messages
+  to the assinged investigators and also send documents that is requested during the investigation process.
+
+INTEGRATIONS:
+- Insight: Insight is a recruiting application from which applicants are invited to the vetted system for background screening. 
+  Applicants are invited from different stages of the recruitment process - During Evaluation or after referrals. 
+  These invited applicants are listed under Screen applicants page of the vetted system
+- Government jobs portal: Applicants applied for a job on the government career page can be invited to the vetted system
+- Looker tool: Integrations for report generations
+
+COMMON WORKFLOWS:
+1. Applicant investigation Process
+   - User submits PHS form for specific job
+   - System validates required fields
+   - Documents are uploaded and stored
+   - Application status is updated as PHS completed after submit
+   - Notifications sent to relevant investigators
+   - Background verification process is initiated 
+
+2. PHS form maintaining and publishing
+   - Admin creates PHS forms with predefined questions on each module
+   - Adds custom questions if required
+   - Allowed to mark the questions as required, optional or hides them completely
+   - Allowed to Hide PHS modules on teh default PHS
+   - PHS is published to job board
+   - Applications start being received and tracked
+
+3. PHS modules list 
+   a. Default PHS
+        1. Personal Information
+        2. Family
+        3. Personal References
+        4. Education
+        5. Residences
+        6. Employment History
+        7. Unemployment
+        8. Misc. Employment Question
+        9. Prior Public Safety Applications
+        10. Military Service
+        11. Financial History
+        12. Arrests
+        13. Civil Judgment
+        14. Domestic Violence
+        15. Misc. Question
+        16. Drug Use
+        17. Driver History
+        18. Social Media
+        19. Pistol Permits
+        20. Professional Licenses
+        21. Street Gang Affiliations (Self)
+        22. Street Gang Affiliations (Family)
+        23. Volunteer Service
+        24. Organizations
+        25. Specialized Training
+
+   b. CA POST PHS 
+        1. Personal
+        2. Relatives and References
+        3. Education
+        4. Residence History
+        5. Experience and Employment
+        6. Military Experience
+        7. Financial
+        8. Legal
+        9. Motor Vehicle Information
+        10. Other Topics
+
+4. Approval Workflows
+   - Application goes through approval workflow - The required agency user to participate in apporval process are configured by admins
+   - Approval Request is submitted for specific status changes - Withdrawn, Admin Review, Disqualified, Conditional Offer
+   - Workflow routes to appropriate approver based on response types - First Response, All Response, Simple Vote, Dynamic First Response
+   - Approver receives notification. Approvers can be an admin, investigator, reviewer or any other custom roles defined
+   - Status is updated after approval workflow is complete
+
+KNOWN CONSTRAINTS:
+- Maximum file upload size is 10MB
+- Sessions timeout after 30 minutes of inactivity
+- Agency Users must have appropriate permissions to access admin functions
+- API rate limit is 1000 requests per hour per user
+- Email notifications are throttled to prevent spam
+- Concurrent position updates are handled with optimistic locking
+- Documents opens in document viewer which is time consuming for first few attempts
+
+TESTING CONSIDERATIONS:
+- Test with multiple user roles (Admin, investigator, reviewer or any other custom roles defined)
+- Verify permission boundaries between roles
+- Test workflow transitions and edge cases
+- Validate email notifications at each step
+- Check data validation and error handling
+- Test file upload/download functionality
+- Verify integration points with external services
+- Test responsive design on various devices
+- Validate accessibility compliance (WCAG 2.1)
+- Performance test with concurrent users
+
+COMMON TEST DATA:
+- Test Environment URL:
+    Agency Login - https://vetted.staging.neogov.net/
+    Applicant Login - https://gjobs.staging.neogov.net/

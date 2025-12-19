@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Testing Companion | QA Automation Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+</head>
+<body>
+    <!-- ============================================================ -->
+    <!-- MAIN CONTAINER -->
+    <!-- ============================================================ -->
+    <div class="container">
+        
+        <!-- ============================================================ -->
+        <!-- LEFT SIDEBAR -->
+        <!-- ============================================================ -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">🤖 AI Testing Companion</h1>
+                <p class="sidebar-subtitle">Intelligent QA Automation</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#generate-tests" class="nav-link active" id="nav-generate-tests" data-section="generate-tests">
+                    <span class="nav-icon">🚀</span>
+                    <span class="nav-text">Generate Tests</span>
+                </a>
+                
+                <a href="#bug-intelligence" class="nav-link" id="nav-bug-intelligence" data-section="bug-intelligence">
+                    <span class="nav-icon">🧠</span>
+                    <span class="nav-text">Bug Intelligence</span>
+                </a>
+                
+                <a href="#analyze-pr" class="nav-link" id="nav-analyze-pr" data-section="analyze-pr">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-text">Analyze PR</span>
+                </a>
+                
+                <a href="#settings" class="nav-link" id="nav-settings" data-section="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p class="version-info">v1.0.0</p>
+                <p class="powered-by">Powered by AI</p>
+            </div>
+        </aside>
+
+        <!-- ============================================================ -->
+        <!-- MAIN CONTENT AREA -->
+        <!-- ============================================================ -->
+        <main class="main-content" id="main-content">
+            
+            <!-- ======================================================== -->
+            <!-- SECTION: GENERATE TESTS -->
+            <!-- ======================================================== -->
+            <section class="content-section active" id="generate-tests">
+                <header class="section-header">
+                    <h2 class="section-title">🚀 Generate Test Cases</h2>
+                    <p class="section-description">Generate BDD-format test cases from JIRA stories using AI</p>
+                </header>
+
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Input Form -->
+                        <div class="form-group">
+                            <label for="jira-ids" class="form-label">
+                                JIRA Story IDs *
+                                <span class="form-hint">Comma-separated for multiple stories (e.g., PROJ-123, PROJ-124)</span>
+                            </label>
+                            <input type="text" 
+                                   id="jira-ids" 
+                                   class="form-input" 
+                                   placeholder="PROJ-123, PROJ-124"
+                                   aria-label="JIRA Story IDs">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="suite-id" class="form-label">TestRail Suite ID *</label>
+                                <input type="number" 
+                                       id="suite-id" 
+                                       class="form-input" 
+                                       placeholder="13533"
+                                       aria-label="TestRail Suite ID">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="folder-name" class="form-label">
+                                    Folder Name *
+                                    <span class="form-hint">Will be created if doesn't exist</span>
+                                </label>
+                                <input type="text" 
+                                       id="folder-name" 
+                                       class="form-input" 
+                                       placeholder="My Test Cases"
+                                       aria-label="Folder Name">
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button id="btn-generate-tests" class="btn btn-primary">
+                                <span class="btn-icon">✨</span>
+                                <span class="btn-text">Generate Test Cases</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generated Test Cases Display -->
+                <div class="card" id="test-cases-card" style="display: none;">
+                    <div class="card-header">
+                        <h3 class="card-title">Generated Test Cases</h3>
+                        <div class="card-actions">
+                            <span id="test-case-count" class="badge">0 test cases</span>
+                            <button id="btn-select-all" class="btn btn-sm btn-secondary">Select All</button>
+                            <button id="btn-deselect-all" class="btn btn-sm btn-secondary">Deselect All</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="test-cases-list" class="test-cases-list">
+                            <!-- Test cases will be dynamically inserted here -->
+                        </div>
+
+                        <div class="button-group mt-4">
+                            <button id="btn-upload-to-testrail" class="btn btn-success">
+                                <span class="btn-icon">📤</span>
+                                <span class="btn-text">Upload Selected to TestRail</span>
+                            </button>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div id="upload-progress" class="progress-section" style="display: none;">
+                            <h4>Upload Progress</h4>
+                            <div class="progress-bar">
+                                <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+                            </div>
+                            <p id="progress-text" class="progress-text">Uploading...</p>
+                            <div id="progress-log" class="progress-log"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- SECTION: BUG INTELLIGENCE -->
+            <!-- ======================================================== -->
+            <section class="content-section" id="bug-intelligence">
+                <header class="section-header">
+                    <h2 class="section-title">🧠 Bug Intelligence</h2>
+                    <p class="section-description">Generate comprehensive bug reports with AI assistance</p>
+                </header>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="bug-description" class="form-label">
+                                Bug Description *
+                                <span class="form-hint">Describe the bug in a few lines</span>
+                            </label>
+                            <textarea id="bug-description" 
+                                      class="form-textarea" 
+                                      rows="5" 
+                                      placeholder="Describe the bug you encountered..."
+                                      aria-label="Bug Description"></textarea>
+                        </div>
+
+                        <div class="button-group">
+                            <button id="btn-generate-bug-report" class="btn btn-primary">
+                                <span class="btn-icon">🐛</span>
+                                <span class="btn-text">Generate Bug Report</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generated Bug Report -->
+                <div class="card" id="bug-report-card" style="display: none;">
+                    <div class="card-header">
+                        <h3 class="card-title">Generated Bug Report</h3>
+                        <div class="card-actions">
+                            <button id="btn-copy-bug-report" class="btn btn-sm btn-success">
+                                <span class="btn-icon">📋</span>
+                                Copy to Clipboard
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="bug-report-content" class="bug-report-content" contenteditable="true">
+                            <!-- Bug report will be dynamically inserted here -->
+                        </div>
+                        <p class="form-hint mt-2">✏️ You can edit the content above before copying</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- SECTION: ANALYZE PR -->
+            <!-- ======================================================== -->
+            <section class="content-section" id="analyze-pr">
+                <header class="section-header">
+                    <h2 class="section-title">🔍 Analyze Pull Request</h2>
+                    <p class="section-description">Analyze PR impact and identify affected test cases</p>
+                </header>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pr-jira-id" class="form-label">JIRA Ticket ID *</label>
+                                <input type="text" 
+                                       id="pr-jira-id" 
+                                       class="form-input" 
+                                       placeholder="PROJ-123"
+                                       aria-label="JIRA Ticket ID">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="pr-suite-id" class="form-label">TestRail Suite ID *</label>
+                                <input type="number" 
+                                       id="pr-suite-id" 
+                                       class="form-input" 
+                                       placeholder="13533"
+                                       aria-label="TestRail Suite ID for PR Analysis">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pr-url" class="form-label">
+                                PR URL (Optional - can fetch from JIRA or enter directly)
+                                <span class="form-hint">Try "Fetch PRs" or paste PR URL manually</span>
+                            </label>
+                            <input type="text" 
+                                   id="pr-url" 
+                                   class="form-input" 
+                                   placeholder="https://bitbucket.neogov.com/projects/IN/repos/backgroundsolutions/pull-requests/3338"
+                                   aria-label="Pull Request URL">
+                        </div>
+
+                        <div class="button-group">
+                            <button id="btn-fetch-prs" class="btn btn-secondary">
+                                <span class="btn-icon">🔗</span>
+                                <span class="btn-text">Fetch PRs</span>
+                            </button>
+                            <button id="btn-analyze-pr" class="btn btn-primary">
+                                <span class="btn-icon">🔍</span>
+                                <span class="btn-text">Analyze PR</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PR Analysis Results -->
+                <div id="pr-results" class="pr-results" style="display: none;">
+                    <!-- What Changed? -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">📝 What Changed?</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="pr-category" class="pr-category"></div>
+                            <div id="pr-files" class="pr-files"></div>
+                        </div>
+                    </div>
+
+                    <!-- What Can Break? -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">⚠️ What Can Break?</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="impact-analysis" class="impact-analysis"></div>
+                        </div>
+                    </div>
+
+                    <!-- What Should I Test? -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">✅ What Should I Test?</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="impacted-test-cases" class="test-cases-section"></div>
+                        </div>
+                    </div>
+
+                    <!-- Should I Worry? -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🎯 Should I Worry?</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="risk-assessment" class="risk-assessment"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- SECTION: SETTINGS -->
+            <!-- ======================================================== -->
+            <section class="content-section" id="settings">
+                <header class="section-header">
+                    <h2 class="section-title">⚙️ Settings</h2>
+                    <p class="section-description">Configure API credentials and application context</p>
+                </header>
+
+                <div class="settings-grid">
+                    <!-- JIRA Configuration -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">JIRA Configuration</h3>
+                            <span id="jira-status" class="status-badge"></span>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Base URL</label>
+                                <input type="text" id="jira-url" class="form-input" readonly>
+                            </div>
+                            <p class="form-hint">
+                                Configure in backend/config.js<br>
+                                API Token: JIRA Settings → Security → API Tokens
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Bitbucket Configuration -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Bitbucket Configuration</h3>
+                            <span id="bitbucket-status" class="status-badge"></span>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Base URL</label>
+                                <input type="text" id="bitbucket-url" class="form-input" readonly>
+                            </div>
+                            <p class="form-hint">
+                                Configure in backend/config.js<br>
+                                Access Token: Bitbucket Settings → Personal Access Tokens
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- TestRail Configuration -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">TestRail Configuration</h3>
+                            <span id="testrail-status" class="status-badge"></span>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Base URL</label>
+                                <input type="text" id="testrail-url" class="form-input" readonly>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Project ID</label>
+                                    <input type="text" id="testrail-project" class="form-input" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Default Suite ID</label>
+                                    <input type="text" id="testrail-suite" class="form-input" readonly>
+                                </div>
+                            </div>
+                            <p class="form-hint">
+                                Configure in backend/config.js<br>
+                                API Key: TestRail → My Settings → API Keys
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Context File Upload -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Application Context</h3>
+                            <span id="context-status" class="status-badge"></span>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="context-file" class="form-label">
+                                    Upload Context File (.txt only)
+                                    <span class="form-hint">Provides AI with application knowledge</span>
+                                </label>
+                                <input type="file" 
+                                       id="context-file" 
+                                       class="form-input-file" 
+                                       accept=".txt"
+                                       aria-label="Context File">
+                            </div>
+                            <div class="button-group">
+                                <button id="btn-upload-context" class="btn btn-primary">
+                                    <span class="btn-icon">📁</span>
+                                    Upload Context File
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PR SELECTION MODAL -->
+    <!-- ============================================================ -->
+    <div id="pr-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Pull Request</h3>
+                <button class="modal-close" onclick="closePRModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="pr-list" class="pr-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- LOADING OVERLAY -->
+    <!-- ============================================================ -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p id="loading-text" class="loading-text">Processing...</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TOAST NOTIFICATIONS -->
+    <!-- ============================================================ -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ============================================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================================ -->
+    <script src="dashboard.js"></script>
+</body>
+</html>
