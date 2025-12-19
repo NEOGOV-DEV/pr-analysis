@@ -10,6 +10,7 @@ yarn-error.log*
 
 # Configuration (contains sensitive credentials)
 backend/config.js
+config.js
 
 # Environment variables
 .env
